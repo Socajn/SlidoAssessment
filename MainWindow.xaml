@@ -15,35 +15,95 @@
     </Window.DataContext>
 
     <Window.Resources>
+        
+        <SolidColorBrush x:Key="BackgroundBrush">#E2E2E2</SolidColorBrush>
+        
+        <Style x:Key="FirstButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border 
+                            x:Name="Border"
+                            Width="200"
+                            CornerRadius="5"
+                            Background="#0a5fb3"
+                            TextBlock.Foreground="White"
+                            Height="32">
+                            <ContentPresenter
+                                Margin="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#084c8f" />
+                                <Setter TargetName="Border" Property="TextBlock.Foreground" Value="White" />
+                            </Trigger>
 
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#3b7fc2" />
+                                <Setter TargetName="Border" Property="TextBlock.Foreground" Value="White" />
+                            </Trigger>
+                            
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="SecondButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border 
+                            x:Name="Border"
+                            Width="200"
+                            CornerRadius="5"
+                            Background="#fbfbfb"
+                            TextBlock.Foreground="Black"
+                            Height="32">
+                            <ContentPresenter
+                                Margin="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#c9c9c9" />
+                                <Setter TargetName="Border" Property="TextBlock.Foreground" Value="Black" />
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#fcfcfc" />
+                                <Setter TargetName="Border" Property="TextBlock.Foreground" Value="Black" />
+                            </Trigger>
+                            
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
     </Window.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid Background="{StaticResource BackgroundBrush}">
         
         <StackPanel
-            Grid.Row="1"
             HorizontalAlignment="Center"
-            VerticalAlignment="Top">
+            VerticalAlignment="Center">
             <Button
                 HorizontalAlignment="Center"
+                Content="Open PowerPoint"
+                Style="{StaticResource FirstButtonStyle}"
                 VerticalAlignment="Center">
-                Test
             </Button>
 
             <Button
                 Margin="0 16 0 0"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-                Test2
-            </Button>
+                Style="{StaticResource SecondButtonStyle}"
+                Content="Get Logs"
+                VerticalAlignment="Center"/>
         </StackPanel>
-
-
         
-
-
     </Grid>
 </Window>
