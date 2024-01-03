@@ -9,12 +9,11 @@ namespace SlidoCodingAssessment;
 /// </summary>
 public partial class App : Application
 {
-    
+    private static Mutex _mutex;
+
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    static extern bool SetForegroundWindow(IntPtr hWnd);
-    
-    private static Mutex _mutex = null;
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -26,24 +25,17 @@ public partial class App : Application
         if (!createdNew)
         {
             //app is already running! Exiting the application
-            Process current = Process.GetCurrentProcess();
-            foreach (Process process in Process.GetProcessesByName(current.ProcessName))
-            {
+            var current = Process.GetCurrentProcess();
+            foreach (var process in Process.GetProcessesByName(current.ProcessName))
                 if (process.Id != current.Id)
                 {
                     SetForegroundWindow(process.MainWindowHandle);
-                    Application.Current.Shutdown();
+                    Current.Shutdown();
                     break;
                 }
-            }
-            
         }
-        
-        
-        
-        base.OnStartup(e);
-        
 
+
+        base.OnStartup(e);
     }
 }
-
