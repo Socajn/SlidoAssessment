@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
-using SlidoCodingAssessment.Helpers;
 
 namespace SlidoCodingAssessment;
 
@@ -35,7 +34,7 @@ public partial class App : Application
                     break;
                 }
         }
-        
+
         base.OnStartup(e);
     }
 }

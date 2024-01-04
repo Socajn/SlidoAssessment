@@ -103,7 +103,7 @@
                 Style="{StaticResource SecondButtonStyle}"
                 Content="Get Logs"
                 VerticalAlignment="Center"
-                Command="{Binding SaveLogsCommand}"/>
+                Command="{Binding SaveLogsCommand}" />
         </StackPanel>
 
     </Grid>
