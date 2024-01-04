@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Net.Http;
 using System.Windows.Input;
 using Microsoft.Office.Core;
@@ -30,40 +32,96 @@ public class MainViewModel : ViewModelBase
     #region Methods
     private async void DownloadFileAndOpenFile()
     {
+        LoggerUtils.Instance.LogInfo(@"Downloading and opening presentation.");
+        
         var fileName = "How to use Slido.pptx";
-
         if (File.Exists(fileName)) File.Delete(fileName);
 
         using (var client = new HttpClient())
         {
-            var uri = new Uri("https://api.slido.com/global/api/powerpoint-addin/presentation");
-
-            await client.DownloadFileTaskAsync(uri, fileName);
+            try
+            {
+                var uri = new Uri("https://api.slido.com/global/api/powerpoint-addin/presentation");
+                await client.DownloadFileTaskAsync(uri, fileName);
+            }
+            catch (Exception ex)
+            {
+                LoggerUtils.Instance.LogError(@"Failed to download the file.", ex.Message);
+            }
         }
+        
+        LoggerUtils.Instance.LogInfo(@"File downloaded.");
+        LoggerUtils.Instance.LogInfo(@"Opening presentation.");
 
         string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
         string? strWorkPath = System.IO.Path.GetDirectoryName(strExeFilePath);
         string fullFilePath = System.IO.Path.Combine(strWorkPath, fileName);
         
-        var ppApp = new Application();
-        ppApp.Visible = MsoTriState.msoTrue;
-        Presentations ppPresens = ppApp.Presentations;
-        Presentation objPres = ppPresens.Open(fullFilePath, MsoTriState.msoFalse, MsoTriState.msoTrue, MsoTriState.msoTrue);
+        try
+        {
+            var ppApp = new Application();
+            ppApp.Visible = MsoTriState.msoTrue;
+            Presentations ppPresens = ppApp.Presentations;
+            Presentation objPres = ppPresens.Open(fullFilePath, MsoTriState.msoFalse, MsoTriState.msoTrue, MsoTriState.msoTrue);
+        }
+        catch (Exception ex)
+        {
+            LoggerUtils.Instance.LogError(@"Failed to open presentation.", ex.Message);
+        }
+        
+        LoggerUtils.Instance.LogInfo(@"Presentation opened.");
 
         //If I want to run slideShow
         // Slides objSlides = objPres.Slides;
         // Microsoft.Office.Interop.PowerPoint.SlideShowSettings objSSS;
         // objSSS = objPres.SlideShowSettings;
         // objSSS.Run();
+        
+        //Other way to open PowerPoint but the exe path is not always in the same place
+        // string powerPointPath = @"C:\Program Files\Microsoft Office\root\Office16\POWERPNT.EXE";
+        // Process powerPoint = new Process();
+        // powerPoint.StartInfo.FileName = powerPointPath;
+        // powerPoint.StartInfo.Arguments = fullFilePath;
+        // powerPoint.Start();
     }
 
     private void GetLogs()
     {
-        //I don't think that HKEY_LOCAL_USER exists
-        //string keyPath = @"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Office\PowerPoint";
+        LoggerUtils.Instance.LogInfo(@"Creating logs.");
+        
         var keyPath = @"SOFTWARE\Microsoft\Office\PowerPoint\Addins";
-        var regKey = Registry.LocalMachine.OpenSubKey(keyPath);
-        var addins = regKey.GetSubKeyNames();
+        var regKey = Registry.CurrentUser.OpenSubKey(keyPath);
+        var addins = regKey?.GetSubKeyNames();
+
+        var fileName = @"log.txt";
+        string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        string? strWorkPath = System.IO.Path.GetDirectoryName(strExeFilePath);
+        string fullFilePath = System.IO.Path.Combine(strWorkPath, fileName);
+        
+
+        var fileContent = LoggerUtils.Instance.GetLogContent().ToList();
+        if (addins != null)
+        {
+            fileContent.AddRange(addins);
+        }
+        File.AppendAllLines(fullFilePath, fileContent);
+        
+        var zipFullPath = System.IO.Path.Combine(strWorkPath, "Log.zip");
+
+        if (File.Exists(zipFullPath))
+        {
+            File.Delete(zipFullPath);
+        }
+        using (var zip = ZipFile.Open(zipFullPath, ZipArchiveMode.Create))
+        {
+            zip.CreateEntryFromFile(fullFilePath, fileName);
+        }
+
+        if (File.Exists(fullFilePath))
+        {
+            File.Delete(fullFilePath);
+        }
+        
     }
     
     #endregion
